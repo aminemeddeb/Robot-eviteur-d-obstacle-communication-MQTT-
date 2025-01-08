@@ -169,26 +169,5 @@ Serial.print("DistanceL (cm): ");
 
 }
 void encryptMessage(const char* input, char* output, size_t output_size) {
-  unsigned char key[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x97, 0x75, 0x46, 0x8f, 0x51, 0x8f};
-  unsigned char iv[16] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
-
-  mbedtls_aes_context aes;
-  mbedtls_aes_init(&aes);
-
-  mbedtls_aes_setkey_enc(&aes, key, 128);
-
-  size_t input_len = strlen(input);
-  size_t padded_len = ((input_len / 16) + 1) * 16;
-  unsigned char* input_padded = (unsigned char*)malloc(padded_len);
-  memset(input_padded, 0, padded_len);
-  memcpy(input_padded, input, input_len);
-
-  mbedtls_aes_crypt_cbc(&aes, MBEDTLS_AES_ENCRYPT, padded_len, iv, input_padded, (unsigned char*)output);
-
-  mbedtls_aes_free(&aes);
-  free(input_padded);
-
-  // Base64 encode the encrypted output
-  size_t encoded_len = base64_encode(NULL, 0, output, padded_len);
-  base64_encode(output, encoded_len, output, padded_len);
+  
 }
