@@ -15,7 +15,6 @@ Ce projet implémente un robot éviteur d'obstacle avec une communication MQTT e
 ### Logiciel
 - **Mosquitto** : Broker MQTT pour la gestion des messages.
 - **Node-RED** : Pour la visualisation et le contrôle des données.
-- **Python (facultatif)** : Pour des scripts supplémentaires de test ou de visualisation.
 
 ---
 
@@ -37,7 +36,7 @@ Ce projet implémente un robot éviteur d'obstacle avec une communication MQTT e
   ```bash
   node-red
   ```
-- Accédez à l'interface sur : [http://127.0.0.1:1880](http://127.0.0.1:1880)
+- Accédez à l'interface sur : [http://localhost:1880](http://localhost:1880)
 
 ### 3. Programmer l'ESP32
 
