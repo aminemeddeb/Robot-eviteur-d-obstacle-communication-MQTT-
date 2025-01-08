@@ -104,9 +104,8 @@ Ce projet implémente un robot éviteur d'obstacle avec une communication MQTT e
 
 ## Auteur
 
-- **Nom** : [Votre Nom]
-- **Contact** : [Votre Email]
-- **GitHub** : [Lien vers votre GitHub]
+- **Nom** : Meddeb
+- **Prénom** : Amine  
 
 ---
 
