@@ -1,10 +1,13 @@
 #include <WiFi.h>
 #include <PubSubClient.h> 
-#include "AESLib.h"
 
+//Lib pour AES
+#include <CryptoAES_CBC.h>
+#include <AES.h>
+#include <string.h>
 
-const char* ssid = "ssid";
-const char* password = "password";
+const char* ssid = "Ooredoo-13244C";
+const char* password = "vv86&$NM";
 const char* mqttServer = "192.168.1.29";
 const int mqttPort = 1883;
 const char* topic = "distance";
@@ -36,6 +39,22 @@ float distanceCmr;
 float distanceCml;
 float distanceInch;
 int pos ;
+
+// Clé AES 128 bits (16 octets)
+byte key[16] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
+
+// Message à crypter : "amine" (nous devons le remplir avec des zéros pour qu'il ait une longueur de 16 octets)
+byte plaintext[16] = {'a', 'm', 'i', 'n', 'e', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+// Tableau pour stocker le texte chiffré
+byte cypher[16];
+
+// Tableau pour stocker le texte déchiffré
+byte decryptedtext[16];
+
+// Création de l'objet AES128
+AES128 aes128;
+
 
 void setup() {
   sg90.setPeriodHertz(50); // PWM frequency for SG90
@@ -73,11 +92,14 @@ void setup() {
       delay(2000);
     }
   }
+  // Définir la clé pour AES
+  aes128.setKey(key, 16);
+
  }
 void loop() {
   distanceCm = read_ultra(0);
 
-  while (distanceCm > 10 ){
+  while (distanceCm > 15 ){
     forward() ; 
     stop();
     distanceCm= read_ultra(0);
@@ -94,13 +116,23 @@ void loop() {
   else right() ; 
   stop();
  String payload = String(float (distanceCm),2);
-  char message[256];
-   encryptMessage(payload.c_str(), message, sizeof(message));
+  
+char message[256];
+char* encryptedMessage = encryptMessage(cypher, plaintext, sizeof(cypher));
 
-  dtostrf(distanceCm, 6, 2, message); // Convert float to string
+// Copy encrypted message into the 'message' array
+strncpy(message, encryptedMessage, sizeof(message) - 1);
+message[sizeof(message) - 1] = '\0';  // Ensure null-termination
+
+// Don't forget to delete the dynamically allocated memory after use
+
+  //dtostrf(distanceCm, 6, 2, message); // Convert float to string
+  client.publish(topic, encryptedMessage); // Publish message
   client.publish(topic, message); // Publish message
   Serial.println("Published: " + payload);
   delay(1000); 
+  delete[] encryptedMessage;
+
 }
 void forward(){
   digitalWrite(FL,100);
@@ -168,6 +200,34 @@ Serial.print("DistanceL (cm): ");
   return distanceCm;
 
 }
-void encryptMessage(const char* input, char* output, size_t output_size) {
-  
+char* encryptMessage(byte * cypher, byte * plaintext, size_t cypherSize) {
+  // Chiffrement
+  aes128.encryptBlock(cypher, plaintext);
+  Serial.println();
+  String encoded = ""; 
+
+  // Afficher le texte chiffré
+  Serial.print("Après Chiffrement: ");
+  for (int j = 0; j < cypherSize; j++) {
+    Serial.write(cypher[j]);
+    encoded += String((char)cypher[j]);  // Add byte to the encoded string
+  }
+
+  char* se = new char[encoded.length() + 1];  // Dynamically allocate memory for the char array
+  stringToCharArray(encoded, se);
+
+  return se;
+}
+void stringToCharArray(const String& str, char* charArray) {
+  // Ensure the string size fits into the char array
+  if (str.length() >= 256) {
+    Serial.println("Error: String is too long to fit into char[256].");
+    return;
+  }
+
+  // Copy the string into the char array
+  memcpy(charArray, str.c_str(), str.length());
+
+  // Null-terminate the char array
+  charArray[str.length()] = '\0';
 }
