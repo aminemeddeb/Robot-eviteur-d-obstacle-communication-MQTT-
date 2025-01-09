@@ -3,8 +3,8 @@
 #include "AESLib.h"
 
 
-const char* ssid = "Ooredoo-13244C";
-const char* password = "vv86&$NM";
+const char* ssid = "ssid";
+const char* password = "password";
 const char* mqttServer = "192.168.1.29";
 const int mqttPort = 1883;
 const char* topic = "distance";
