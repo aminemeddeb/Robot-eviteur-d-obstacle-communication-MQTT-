@@ -101,10 +101,10 @@ Ce projet implémente un robot éviteur d'obstacle avec une communication MQTT e
 
 ---
 
-## Auteur
+## Auteurs
 
-- **Nom** : Meddeb
-- **Prénom** : Amine  
+- **Meddeb Amine** 
+- **Ebn Elhaj Letaif Moataz Belleh** 
 
 ---
 
