@@ -1,0 +1,10 @@
+const key = 0x5A; // Same XOR key as ESP32
+const encryptedData = msg.payload.split(","); // Split string into array
+const intBytes = encryptedData.map(b => parseInt(b, 16) ^ key); // XOR decryption
+
+// Convert bytes back to int
+const buffer = Buffer.from(intBytes);
+const decryptedInt = buffer.readInt32LE(); // Little-endian integer
+
+msg.payload = decryptedInt;
+return msg;
