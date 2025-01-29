@@ -4,7 +4,7 @@
 
 
 const char* ssid = "ssid";
-const char* password = "password";
+const char* password = "Password";
 const char* mqttServer = "192.168.1.29";
 const int mqttPort = 1883;
 const char* topic = "distance";
@@ -19,7 +19,7 @@ const char* topic = "distance";
 
 Servo sg90;
 
-
+ char message[256];
 
 const int trigPin = 5;
 const int echoPin = 18;
@@ -77,7 +77,7 @@ void setup() {
 void loop() {
   distanceCm = read_ultra(0);
 
-  while (distanceCm > 10 ){
+  while (distanceCm > 15 ){
     forward() ; 
     stop();
     distanceCm= read_ultra(0);
@@ -93,14 +93,26 @@ void loop() {
   if (distanceCmr >=distanceCml)left();
   else right() ; 
   stop();
+  /*
  String payload = String(float (distanceCm),2);
   char message[256];
    encryptMessage(payload.c_str(), message, sizeof(message));
 
   dtostrf(distanceCm, 6, 2, message); // Convert float to string
+
   client.publish(topic, message); // Publish message
   Serial.println("Published: " + payload);
-  delay(1000); 
+*/
+ 
+ // Convert encrypted int to string directly
+String encryptedString = String(encryptInt( int (distanceCm))); 
+
+// Copy the string to the char array message
+encryptedString.toCharArray(message, 256); 
+Serial.println(message);
+client.publish(topic,message );
+
+ 
 }
 void forward(){
   digitalWrite(FL,100);
@@ -168,6 +180,16 @@ Serial.print("DistanceL (cm): ");
   return distanceCm;
 
 }
-void encryptMessage(const char* input, char* output, size_t output_size) {
-  
+const byte key = 0x5A; // Simple XOR key
+
+String encryptInt(int value) {
+  byte* intAsBytes = (byte*)&value; // Treat int as a byte array
+  String encrypted = "";
+
+  for (int i = 0; i < sizeof(int); i++) {
+    encrypted += String(intAsBytes[i] ^ key, HEX); // XOR each byte with the key
+    if (i < sizeof(int) - 1) encrypted += ",";    // Add a separator
+  }
+
+  return encrypted;
 }
